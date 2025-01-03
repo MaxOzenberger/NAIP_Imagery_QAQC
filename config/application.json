@@ -1,0 +1,22 @@
+{
+  "title": "NAIP Imagery - Inspection & QA/QC",
+  "snippet": "find and inspect NAIP imagery",
+  "description": "",
+  "portalUrl_Ent": "https://usda-ent.imagery.esri.com/portal",
+  "oauthappid_Ent": "NXTAafQuFjiR83Or",
+  "portalUrl": "https://www.arcgis.com/",
+  "oauthappid": "qBddbQWIQGR7JawM",
+  "authMode": "auto",
+  "apiKey": null,
+  "group": "",
+  "webmap_Ent": "454f60afc51f4aaf85befe324978721f",
+  "webmap": "dd4c41bec75b48808de0e39b19b1c1b0",
+  "webscene": "",
+  "viewProps": {
+    "alphaCompositingEnabled": true
+  },
+  "container": "view-container",
+  "shareable": ["state","year"],
+  "state": "SD",
+  "year": "2022"
+}

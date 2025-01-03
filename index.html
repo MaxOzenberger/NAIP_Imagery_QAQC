@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0 maximum-scale=1.0"/>
+    <!-- ICON -->
+    <link rel="icon" href="./assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- TITLE -->
+    <title class="application-title"></title>
+    <!-- META -->
+    <!--<meta property="og:title" content="">-->
+    <!--<meta property="og:description" content="">-->
+    <!--<meta property="og:url" content="https://geoxc-apps.bd.esri.com/.../index.html">-->
+    <!--<meta property="og:image" content="https://geoxc-apps.bd.esri.com/.../assets/app.png">-->
+    
+    <!-- CHARTJS -- https://www.chartjs.org/ -->
+    <!-- 4.2.1 -->
+    <!--<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.min.js"></script>-->
+    
+    <!-- CALCITE -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/2.2.0/calcite.esm.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.2.0/calcite.css"/>
+    
+    <!-- ArcGIS API for JavaScript-->
+    <link href="https://js.arcgis.com/4.29/@arcgis/core/assets/esri/themes/dark/main.css" rel="stylesheet"/>
+    <script src="https://js.arcgis.com/4.29/"></script>
+    
+    <!-- APPLICATION -->
+    <link rel="stylesheet" type="text/css" href="./css/application.css">
+    <script type="module" src="./js/Application.js"></script>
+  </head>
+  <body class="calcite-mode-dark">
+    <calcite-shell>
+      
+      <!-- HEADER -->
+      <calcite-navigation slot="header">
+        <!-- TITLE AND SNIPPET -->
+        <calcite-navigation-logo slot="logo" icon="image-layer" heading="Application Title" description="application description" href="https://naip-usdaonline.hub.arcgis.com/" target="_blank"></calcite-navigation-logo>
+        <!-- SHARE AND INFO ACTIONS -->
+        <calcite-button id="map-action" target="_blank" slot="content-end" appearance="transparent" icon-end="launch" title="view map item..."></calcite-button>
+        <!--<calcite-action slot="content-end" id="app-share-action" appearance="transparent" scale="m" title="share current options..." text="share current options" icon="link"></calcite-action>-->
+        <calcite-action slot="content-end" id="app-details-action" appearance="transparent" scale="m" title="app details..." text="app details" icon="information"></calcite-action>
+        <!-- SIGN IN-->
+        <div id="sign-in-container" slot="user"></div>
+      </calcite-navigation>
+      
+      <!-- LEFT -->
+      <calcite-shell-panel slot="panel-start" position="start" width-scale="m">
+        <calcite-action-bar id="side-panel-action-bar" slot="action-bar">
+          <calcite-action text="Layers" title="map" icon="map" class="toggle-action" data-toggle="map" hidden></calcite-action>
+          <calcite-action text="Image Filter" icon="image-collection-explorer" class="toggle-action" data-toggle="filter" active></calcite-action>
+          <calcite-action text="Image Inspection" icon="overview" class="toggle-action" data-toggle="inspection"></calcite-action>
+        </calcite-action-bar>
+        
+        <calcite-panel heading="Map" class="toggle-panel" data-toggle="map" hidden>
+          
+          <!--<calcite-block heading="Layers" collapsible open>
+            <calcite-icon slot="icon" icon="layers"></calcite-icon>
+            <calcite-block-section text="Reference">
+              <div id="basemap-reference-layers-container"></div>
+            </calcite-block-section>
+            <calcite-block-section text="Operational" open>
+              <div id="layers-container"></div>
+            </calcite-block-section>
+            <calcite-block-section text="Base">
+              <div id="basemap-base-layers-container"></div>
+            </calcite-block-section>
+            <calcite-block-section text="Tables">
+              <div id="tables-container"></div>
+            </calcite-block-section>
+          </calcite-block>-->
+          <!--<calcite-block heading="Legend" collapsible>
+            <calcite-icon slot="icon" icon="legend"></calcite-icon>
+            <div id="legend-container"></div>
+          </calcite-block>-->
+        </calcite-panel>
+        
+        <calcite-panel heading="Search & Filter" class="toggle-panel" data-toggle="filter">
+          
+          <calcite-card hidden>
+            <div slot="title">Available Imagery Collections</div>
+            <calcite-list selection-mode="single" selection-appearance="icon">
+              <calcite-list-item label="Test MA" description="Last Modified: Jan 21, 2023" selected></calcite-list-item>
+              <calcite-list-item label="Test CA" description="Last Modified: Jan 24, 2023"></calcite-list-item>
+            </calcite-list>
+          </calcite-card>
+          
+          <calcite-card style="display: contents;">
+            
+            <div slot="title">Filter Images</div>
+            
+            <calcite-label>
+              <div>State</div>
+              <calcite-combobox id="states-options" placeholder="Select States..." scale="s"></calcite-combobox>
+            </calcite-label>
+            
+            <calcite-label>
+              <div>Year</div>
+              <calcite-combobox id="year-options" placeholder="Select years..." scale="s"></calcite-combobox>
+            </calcite-label>
+            
+            <calcite-label>
+              <div>Inspection Status</div>
+              <calcite-combobox id="status-options" placeholder="Select status..." scale="s">
+                <calcite-combobox-item value="unknown" text-label="unknown"></calcite-combobox-item>
+                <calcite-combobox-item-group label="Status">
+                  <calcite-combobox-item value="unchecked" text-label="unchecked" selected></calcite-combobox-item>
+                </calcite-combobox-item-group>
+              </calcite-combobox>
+            </calcite-label>
+            
+            <calcite-label layout="inline-space-between" style="--calcite-label-margin-bottom:0;">
+              <div></div>
+              <calcite-chip id="filter-count-label">0 images</calcite-chip>
+              <div></div>
+            </calcite-label>
+          
+          </calcite-card>
+        </calcite-panel>
+        
+        <calcite-panel heading="Inspection" class="toggle-panel" data-toggle="inspection" hidden>
+          
+          <calcite-card>
+            <div slot="title">
+              Images
+            </div>
+            <calcite-label>
+              <calcite-pagination id="raster-oid-pages" page-size="1" start-item="1" total-items="1" scale="s"></calcite-pagination>
+            </calcite-label>
+            <calcite-label layout="inline" style="--calcite-label-margin-bottom:0;">
+              <calcite-button id="raster-random-btn" icon-end="question-mark" width="full" disabled>random</calcite-button>
+              <calcite-button id="raster-next-btn" icon-end="chevrons-right" width="full" disabled>next</calcite-button>
+            </calcite-label>
+          </calcite-card>
+          
+          <calcite-block heading="Image" description="current image" open>
+            <calcite-icon slot="icon" icon="image"></calcite-icon>
+            
+            <calcite-tabs>
+              <calcite-tab-nav slot="title-group">
+                <calcite-tab-title icon-start="information" tab="details" selected>Details</calcite-tab-title>
+                <calcite-tab-title icon-start="properties" tab="properties">Properties</calcite-tab-title>
+                <calcite-tab-title icon-start="data-card" tab="inspection">Inspection</calcite-tab-title>
+              </calcite-tab-nav>
+              <calcite-tab tab="details" selected>
+                
+                <calcite-card>
+                  <div id="details-container"></div>
+                </calcite-card>
+              
+              </calcite-tab>
+              <calcite-tab tab="properties">
+                
+                <calcite-card>
+                  <div id="properties-container"></div>
+                </calcite-card>
+              
+              </calcite-tab>
+              <calcite-tab tab="inspection">
+                
+                <calcite-card>
+                  <calcite-label style="--calcite-label-margin-bottom:8px;">Defect Type</calcite-label>
+                  <calcite-select>
+                    <calcite-option value="None">None</calcite-option>
+                    <calcite-option value="Clouds">Clouds</calcite-option>
+                    <calcite-option value="Color/Tone">Color/Tone</calcite-option>
+                    <calcite-option value="Quality - Contractual">Quality - Contractual</calcite-option>
+                    <calcite-option value="Quality - Non Contractual">Quality - Non Contractual</calcite-option>
+                    <calcite-option value="Restricted Area No Imagery">Restricted Area No Imagery</calcite-option>
+                    <calcite-option value="Unchecked">Unchecked</calcite-option>
+                  </calcite-select>
+                </calcite-card>
+                
+                <calcite-card>
+                  
+                  <calcite-label>
+                    <div>Cloud Cover</div>
+                    <calcite-input-number placeholder="enter cloud cover % (1 to 100)" alignment="end" min="0" max="100" integer clearable></calcite-input-number>
+                  </calcite-label>
+                  
+                  <calcite-label>
+                    <div>Road Alignment</div>
+                    <calcite-select>
+                      <calcite-option value="unknown">unknown</calcite-option>
+                      <calcite-option value="no_issue" selected>no issue</calcite-option>
+                    </calcite-select>
+                  </calcite-label>
+                  
+                  <calcite-label>
+                    <div>Smear</div>
+                    <calcite-select>
+                      <calcite-option value="unknown">unknown</calcite-option>
+                      <calcite-option value="no_issue" selected>no issue</calcite-option>
+                    </calcite-select>
+                  </calcite-label>
+                  
+                  <calcite-label>
+                    <div>Color/Tone</div>
+                    <calcite-select>
+                      <calcite-option value="unknown">unknown</calcite-option>
+                      <calcite-option value="no_issue" selected>no issue</calcite-option>
+                    </calcite-select>
+                  </calcite-label>
+                  
+                  <calcite-label>
+                    <div>Status</div>
+                    <calcite-select>
+                      <calcite-option value="unknown">unknown</calcite-option>
+                      <calcite-option value="no_issue" selected>no issue</calcite-option>
+                    </calcite-select>
+                  </calcite-label>
+                  
+                  <calcite-label>
+                    <calcite-button icon-start="annotate-tool" width="full" scale="l">update inspection settings</calcite-button>
+                  </calcite-label>
+                
+                </calcite-card>
+              
+              </calcite-tab>
+            </calcite-tabs>
+          
+          </calcite-block>
+        
+        </calcite-panel>
+      </calcite-shell-panel>
+      
+      <!-- RIGHT -->
+      <calcite-shell-panel id="inspection-panel" width-scale="l" slot="panel-start">
+        
+        <calcite-panel detached display-mode="overlay" class="toggle-panel" data-toggle="imagery">
+          <!--<calcite-icon slot="icon" icon="image-display-order"></calcite-icon>-->
+          
+          <div id="view-container"></div>
+        
+        </calcite-panel>
+      
+      </calcite-shell-panel>
+      
+      <!-- CENTER -->
+      <calcite-panel id="center-container">
+        
+        <calcite-action-bar slot="action-bar" layout="horizontal" expanded expand-disabled>
+          
+          <calcite-action id="image-zoom-action" icon="layer-zoom-to" text="Zoom" text-enabled></calcite-action>
+          <calcite-tooltip reference-element="image-zoom-action" placement="top" overlay-positioning="fixed">Zoom to image extent...</calcite-tooltip>
+          
+          <calcite-action id="image-inspection-action" icon="image-magnifying-glass" text="Inspect" text-enabled></calcite-action>
+          <calcite-tooltip reference-element="image-inspection-action" placement="top" overlay-positioning="fixed">Inspect blemishes, scratches, and artifacts...</calcite-tooltip>
+          
+          <calcite-action id="image-swipe-action" icon="compare" text="Swipe" text-enabled></calcite-action>
+          <calcite-tooltip reference-element="image-swipe-action" placement="top" overlay-positioning="fixed">Swipe reference layers...</calcite-tooltip>
+          
+          <calcite-label layout="inline" style="--calcite-label-margin-bottom:0;">
+            <div style="padding-left:8px;">Display:</div>
+            <calcite-select id="display-select"></calcite-select>
+            <calcite-icon id="display-icon" icon="information" scale="s"></calcite-icon>
+            <calcite-tooltip id="display-tooltip" reference-element="display-icon" placement="top" overlay-positioning="fixed">Raster function details...</calcite-tooltip>
+          </calcite-label>
+          
+          <calcite-label slot="actions-end" layout="inline" style="--calcite-label-margin-bottom:0;">
+            <div>Scale:</div>
+            <calcite-slider id="detailed-scale-slider" min="100" value="6000" max="25000" page-step="6000" step="1000" ticks="6000"></calcite-slider>
+            <calcite-tooltip reference-element="detailed-scale-slider" placement="bottom">Set inspection map scale...</calcite-tooltip>
+          </calcite-label>
+        
+        </calcite-action-bar>
+        
+        <div id="inspection-view-container"></div>
+      </calcite-panel>
+      
+      <calcite-block id="inspection-block" heading="Pixel Inspector" open hidden>
+        <calcite-icon icon="image-magnifying-glass" slot="icon"></calcite-icon>
+        
+        <calcite-notice id="resolution-notice" kind="brand" icon="check" scale="s" open style="margin:4px 8px;">
+          <div id="resolution-label" slot="message"></div>
+        </calcite-notice>
+        
+        <calcite-label>
+          <calcite-action id="acceptable-action" icon="plans" text-enabled text="blemishes, scratches, and artifacts"></calcite-action>
+        </calcite-label>
+        <calcite-label>
+          <calcite-chip-group id="acceptable-options" selection-mode="single-persist" scale="s" disabled>
+            <calcite-chip value="1|100">1 by 100</calcite-chip>
+            <calcite-chip value="2|60">2 by 60</calcite-chip>
+            <calcite-chip value="3|20" selected>3 by 20</calcite-chip>
+            <calcite-chip value="12|12">12 by 12</calcite-chip>
+          </calcite-chip-group>
+        </calcite-label>
+        
+        <calcite-label>
+          <calcite-action id="measure-pixels-action" icon="measure-line" text-enabled text="measure pixels"></calcite-action>
+        </calcite-label>
+        
+        <calcite-label>
+          <calcite-action id="measure-distance-action" icon="measure" text-enabled text="measure distances"></calcite-action>
+        </calcite-label>
+        <calcite-label style="--calcite-label-margin-bottom:0;">
+          <div id="measurement-container"></div>
+        </calcite-label>
+      
+      </calcite-block>
+      
+      
+      <!-- SHAREABLE ALERT -->
+      <calcite-alert id="app-share-alert" slot="alerts" kind="success" icon="launch" placement="bottom" auto-close auto-close-duration="medium">
+        <div slot="message">Shareable link has been copied to the clipboard.</div>
+        <calcite-link slot="link" href="#" target="_blank" role="link" title="open in new tab">open in new tab</calcite-link>
+      </calcite-alert>
+      
+      <!-- NOTICES ADN ALERTS -->
+      <calcite-alert id="app-notice" slot="alerts" kind="danger" placement="bottom" width="auto">
+        <div slot="title"></div>
+        <div slot="message"></div>
+      </calcite-alert>
+      
+      <!-- APP DETAILS MODAL -->
+      <calcite-modal id="app-details-modal" slot="modals" kind="brand" scale="m" width="m" aria-labelledby="app-modal-title">
+        <h3 slot="header" id="app-modal-title" class="application-title"></h3>
+        <div slot="content" class="application-description"></div>
+        <div slot="secondary">
+          <calcite-label layout="inline">
+            <span>hide on startup</span>
+            <calcite-checkbox id="hide-startup-checkbox"></calcite-checkbox>
+          </calcite-label>
+        </div>
+        <calcite-button id="app-details-ok-btn" slot="primary" width="full" hidden>OK</calcite-button>
+      </calcite-modal>
+    
+    </calcite-shell>
+    
+    <!-- LOADER -->
+    <calcite-loader id="app-loader" type="indeterminate" scale="l" text="...loading..."></calcite-loader>
+  
+  </body>
+</html>
+
