@@ -258,13 +258,13 @@ class Application extends AppBase {
       naipFootprintsLayer.load().then(() => {
         naipFootprintsLayer.set({outFields: ['*']});
       });
-      naipFootprintsLayer.queryFeatures().then((result) => {
+/*       naipFootprintsLayer.queryFeatures().then((result) => {
         if (result.features.length > 0) {
           console.log(result.features[0].attributes);
         } else {
           console.log("No features found in naipFootprintsLayer.");
         }
-      });
+      }); */
       /* const footprintsLayer = new FeatureLayer({
         title: 'Test_NAIP_Footprints',
         fields: fields,
@@ -329,6 +329,7 @@ class Application extends AppBase {
        * @private
        */
       const _filterImage = () => {
+        console.log("here")
 
         const rasterID = _rasterObjectIDs[rasterOidPages.startItem - 1];
 
@@ -338,7 +339,6 @@ class Application extends AppBase {
           outFields: naipImageryLayer.outFields,
           returnGeometry: true
         });
-        console.log("here")
         naipImageryLayer.queryRasters(rastersQuery).then(({features}) => {
           console.log(features);
           if (features.length) {
@@ -350,7 +350,7 @@ class Application extends AppBase {
             const zoomExtent = feature.geometry.extent.clone().expand(1.2);
             view.goTo({target: zoomExtent}).then(() => {
 
-              footprintsLayer.featureEffect = {
+              naipFootprintsLayer.featureEffect = {
                 filter: {where: `(Name = '${ Name }')`},
                 excludedEffect: "grayscale(50%) opacity(50%)"
               };
@@ -391,10 +391,10 @@ class Application extends AppBase {
                 });
               }
 
-              footprintsLayer.applyEdits({addFeatures: [feature]}).then(({addFeatureResults}) => {
+              naipFootprintsLayer.applyEdits({addFeatures: [feature]}).then(({addFeatureResults}) => {
                 const objectIds = addFeatureResults.map(result => result.objectId);
                 
-                footprintsLayer.queryFeatures({objectIds, returnGeometry: true}).then(({features}) => {
+                naipFootprintsLayer.queryFeatures({objectIds, returnGeometry: true}).then(({features}) => {
                   const [newFeature] = features;
                   this.dispatchEvent(new CustomEvent('image-selected', {detail: {feature: newFeature, rasterId, rasterAzimuth, zoomExtent}}));
                 });
@@ -544,15 +544,14 @@ class Application extends AppBase {
            this.dispatchEvent(new CustomEvent('raster-ids', {detail: {rasterFeatures: []}}));
            }
            });*/
-
-          const rastersQuery = new Query();
+          console.log("here")
+          /* const rastersQuery = new Query();
           rastersQuery.set({
             where: _filter,
             outFields: naipImageryLayer.outFields,
             returnGeometry: true
-          });
-          
-          naipImageryLayer.queryObjectIds(rastersQuery).then((rasterObjectIDs) => {
+          }); */
+          naipImageryLayer.queryObjectIds().then((rasterObjectIDs) => {
 
             // RESULTS COUNT //
             filterCountLabel.innerHTML = `${ countFormatter.format(rasterObjectIDs.length) } images`;
@@ -562,6 +561,8 @@ class Application extends AppBase {
             } else {
               this.dispatchEvent(new CustomEvent('raster-ids', {detail: {rasterObjectIDs: []}}));
             }
+            console.log("done")
+
           });
         } else {
           this.dispatchEvent(new CustomEvent('raster-ids', {detail: {rasterObjectIDs: []}}));
@@ -604,7 +605,7 @@ class Application extends AppBase {
         //
 
         // YEAR //
-        console.log(rasterFS.features[0].attributes);
+        //console.log(rasterFS.features[0].attributes);
         //const years = new Set(rasterFS.features.map(f => f.attributes.Year));
         //const yearLabels = Array.from(years.values()).sort();
         const yearLabels = ["2024"];
