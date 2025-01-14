@@ -32,7 +32,7 @@ class Application extends AppBase {
 
       // APPLICATION LOADER //
       const applicationLoader = new AppLoader({app: this});
-      applicationLoader.load().then(({portal, group, map, view}) => {
+      applicationLoader.load().then(({portal, group, map, view, rasterName}) => {
         //console.info(portal, group, map, view);
 
         // PORTAL //
@@ -50,8 +50,12 @@ class Application extends AppBase {
         // USER SIGN-IN //
         this.configUserSignIn();
 
+        // URL PARAMETER FOR RASTER NAME //
+        const urlParams = new URLSearchParams(window.location.search);
+        this.rasterName = urlParams.get('rasterName');
+
         // APPLICATION //
-        this.applicationReady({portal, group, map, view}).catch(this.displayError).then(() => {
+        this.applicationReady({portal, group, map, view, rasterName}).catch(this.displayError).then(() => {
 
           // HIDE APP LOADER //
           document.getElementById('app-loader').toggleAttribute('hidden', true);
@@ -254,6 +258,7 @@ class Application extends AppBase {
         {name: 'rasterId', alias: 'Raster OID', type: "string"}
       ];
 
+      //THIS NEEDS TO BE CONFIG'D
       const naipFootprintsLayer = view.map.layers.find(layer => layer.title === "Test_NAIP_Footprints");
       naipFootprintsLayer.load().then(() => {
         naipFootprintsLayer.set({outFields: ['*']});
@@ -334,11 +339,21 @@ class Application extends AppBase {
         const rasterID = _rasterObjectIDs[rasterOidPages.startItem - 1];
 
         const rastersQuery = new Query();
-        rastersQuery.set({
-          objectIds: [rasterID],
-          outFields: naipImageryLayer.outFields,
-          returnGeometry: true
-        });
+        console.log(this);
+        if(this.rasterName){
+          rastersQuery.set({
+            where: "Name=" + this.rasterName,
+            outFields: naipImageryLayer.outFields,
+            returnGeometry: true
+          });
+        } else {
+          rastersQuery.set({
+            objectIds: [rasterID],
+            outFields: naipImageryLayer.outFields,
+            returnGeometry: true
+          });
+        }
+        
         naipImageryLayer.queryRasters(rastersQuery).then(({features}) => {
           console.log(features);
           if (features.length) {
