@@ -73,8 +73,11 @@ class AppLoader {
         let requiresAuthentication = false;
 
         // PORTAL URL //
-        if (this.app?.portalUrl) {
+        /* if (this.app?.portalUrl) {
           esriConfig.portalUrl = this.app.portalUrl;
+        } */
+        if (this.app?.portalUrl_Ent) {
+          esriConfig.portalUrl = this.app.portalUrl_Ent;
         }
 
         //
@@ -100,14 +103,14 @@ class AppLoader {
             //
             // OAUTH //
             //
-            if (this.app?.oauthappid) {
+            if (this.app?.oauthappid_Ent) {
               requiresAuthentication = true;
               signInMessage = `Application created via OAuth. [ ${ (new Date()).toLocaleString() } ]`;
 
               // CONFIGURE OAUTH //
               const oauthInfo = new OAuthInfo({
                 portalUrl: esriConfig.portalUrl,
-                appId: this.app.oauthappid,
+                appId: this.app.oauthappid_Ent,
                 popup: true
               });
               esriId.registerOAuthInfos([oauthInfo]);

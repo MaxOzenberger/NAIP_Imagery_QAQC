@@ -34,10 +34,18 @@ class MapLoader {
   loadMap() {
     return new Promise((resolve, reject) => {
 
-      const itemID = (this.config.webmap || this.config.webscene);
+      //const itemID = (this.config.webmap || this.config.webscene);
+      const itemID = (this.config.webmap_Ent || this.config.webscene);
       if (itemID) {
 
-        if (this.config.webmap) {
+        /* if (this.config.webmap) {
+          require(['esri/WebMap'], WebMap => {
+            const map = new WebMap({portalItem: {id: itemID}});
+            map.load().then(resolve).catch(reject);
+          });
+        } */
+
+        if (this.config.webmap_Ent) {
           require(['esri/WebMap'], WebMap => {
             const map = new WebMap({portalItem: {id: itemID}});
             map.load().then(resolve).catch(reject);

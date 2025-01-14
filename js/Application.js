@@ -211,8 +211,8 @@ class Application extends AppBase {
     return new Promise(async (resolve, reject) => {
       // VIEW READY //
       this.configView({view}).then(() => {
-
-        const naipImageryLayer = view.map.layers.find(layer => layer.title === "USA NAIP Imagery");
+        //THIS NEEDS TO BE CONFIG'D
+        const naipImageryLayer = view.map.layers.find(layer => layer.title === "NAIP_NewMexico_Imagery_FY2024");
         naipImageryLayer.load().then(() => {
           naipImageryLayer.set({outFields: ['*']});
 
@@ -606,7 +606,7 @@ class Application extends AppBase {
         });
 
         // STATE //
-        const defaultStates = ['SD'];
+        const defaultStates = ['NM'];
         const states = new Set(rasterFS.features.map(f => f.attributes.State));
         const stateLabels = Array.from(states.values()).sort();
         const stateItems = stateLabels.map((state, stateIdx) => {
