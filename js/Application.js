@@ -247,7 +247,6 @@ class Application extends AppBase {
       'esri/geometry/Polygon',
       'esri/geometry/Polyline'
     ], (reactiveUtils, Query, FeatureLayer, GraphicsLayer, geometryEngine, geodesicUtils, webMercatorUtils, Polygon, Polyline) => {
-
       const rasterOidPages = document.getElementById('raster-oid-pages');
 
       const fields = [
@@ -255,8 +254,19 @@ class Application extends AppBase {
         {name: 'rasterId', alias: 'Raster OID', type: "string"}
       ];
 
-      const footprintsLayer = new FeatureLayer({
-        title: 'NAIP Imagery Footprints',
+      const naipFootprintsLayer = view.map.layers.find(layer => layer.title === "Test_NAIP_Footprints");
+      naipFootprintsLayer.load().then(() => {
+        naipFootprintsLayer.set({outFields: ['*']});
+      });
+      naipFootprintsLayer.queryFeatures().then((result) => {
+        if (result.features.length > 0) {
+          console.log(result.features[0].attributes);
+        } else {
+          console.log("No features found in naipFootprintsLayer.");
+        }
+      });
+      /* const footprintsLayer = new FeatureLayer({
+        title: 'Test_NAIP_Footprints',
         fields: fields,
         dateFieldsTimeZone: "UTC",
         objectIdField: naipImageryLayer.objectIdField,
@@ -289,7 +299,7 @@ class Application extends AppBase {
           }
         }
       });
-      view.map.add(footprintsLayer);
+      view.map.add(footprintsLayer); */
 
       const vertexSymbol = (txt) => {
         return {
@@ -311,6 +321,7 @@ class Application extends AppBase {
           paths: [...polygon.rings]
         });
       };
+      
 
       /**
        *
@@ -327,7 +338,9 @@ class Application extends AppBase {
           outFields: naipImageryLayer.outFields,
           returnGeometry: true
         });
+        console.log("here")
         naipImageryLayer.queryRasters(rastersQuery).then(({features}) => {
+          console.log(features);
           if (features.length) {
 
             const [feature] = features;
@@ -380,6 +393,7 @@ class Application extends AppBase {
 
               footprintsLayer.applyEdits({addFeatures: [feature]}).then(({addFeatureResults}) => {
                 const objectIds = addFeatureResults.map(result => result.objectId);
+                
                 footprintsLayer.queryFeatures({objectIds, returnGeometry: true}).then(({features}) => {
                   const [newFeature] = features;
                   this.dispatchEvent(new CustomEvent('image-selected', {detail: {feature: newFeature, rasterId, rasterAzimuth, zoomExtent}}));
@@ -537,6 +551,7 @@ class Application extends AppBase {
             outFields: naipImageryLayer.outFields,
             returnGeometry: true
           });
+          
           naipImageryLayer.queryObjectIds(rastersQuery).then((rasterObjectIDs) => {
 
             // RESULTS COUNT //
@@ -571,12 +586,12 @@ class Application extends AppBase {
 
       const rasterQuery = new Query();
       rasterQuery.set({
-        where: '(Category = 1)',
-        outFields: ['Year', 'State'],
-        returnDistinctValues: true
+        where: 'OBJECTID BETWEEN 1 AND 10',
+        outFields: ['*']
       });
       naipImageryLayer.queryRasters(rasterQuery).then((rasterFS) => {
-
+      //naipImageryLayer.queryRasterCount().then(function(result){
+        //console.log(result);
         // CATEGORY //
         // categoryOptions.addEventListener('calciteComboboxChange', () => {
         //   _updateImageryFilter();
@@ -589,8 +604,10 @@ class Application extends AppBase {
         //
 
         // YEAR //
-        const years = new Set(rasterFS.features.map(f => f.attributes.Year));
-        const yearLabels = Array.from(years.values()).sort();
+        console.log(rasterFS.features[0].attributes);
+        //const years = new Set(rasterFS.features.map(f => f.attributes.Year));
+        //const yearLabels = Array.from(years.values()).sort();
+        const yearLabels = ["2024"];
         const yearItems = yearLabels.map((year, yearIdx) => {
 
           const yearItem = document.createElement('calcite-combobox-item');
@@ -607,8 +624,9 @@ class Application extends AppBase {
 
         // STATE //
         const defaultStates = ['NM'];
-        const states = new Set(rasterFS.features.map(f => f.attributes.State));
-        const stateLabels = Array.from(states.values()).sort();
+        //const states = new Set(rasterFS.features.map(f => f.attributes.State));
+        //const stateLabels = Array.from(states.values()).sort();
+        const stateLabels = ["NM"];
         const stateItems = stateLabels.map((state, stateIdx) => {
 
           const stateItem = document.createElement('calcite-combobox-item');
