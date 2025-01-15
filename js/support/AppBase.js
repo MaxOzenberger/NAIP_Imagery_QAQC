@@ -236,7 +236,7 @@ class AppBase extends AppConfig {
     this.snippet = this.snippet?.length ? this.snippet : (map?.portalItem?.snippet || group?.snippet || '[missing snippet]');
 
     // APP DESCRIPTION //
-    this.description = this.description?.length ? this.description : (map?.portalItem?.description || group?.description || '[missing description]');
+    this.description = this.description?.length ? this.description : (map?.portalItem?.description || group?.description);
 
     const mapAction = document.getElementById('map-action');
     if (map?.portalItem) {

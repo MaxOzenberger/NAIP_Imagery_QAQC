@@ -156,17 +156,18 @@
                 </calcite-card>
               
               </calcite-tab>
-              <calcite-tab tab="inspection">
+              <calcite-tab tab="inspection" id="inspectionForm">
                 
                 <calcite-card>
                   <calcite-label style="--calcite-label-margin-bottom:8px;">Defect Type</calcite-label>
                   <calcite-select>
-                    <calcite-option value="None">None</calcite-option>
+                    <calcite-option value="Blurry">Blurry</calcite-option>
                     <calcite-option value="Clouds">Clouds</calcite-option>
                     <calcite-option value="Color/Tone">Color/Tone</calcite-option>
                     <calcite-option value="Quality - Contractual">Quality - Contractual</calcite-option>
                     <calcite-option value="Quality - Non Contractual">Quality - Non Contractual</calcite-option>
                     <calcite-option value="Restricted Area No Imagery">Restricted Area No Imagery</calcite-option>
+                    <calcite-option value="None">None</calcite-option>
                     <calcite-option value="Unchecked">Unchecked</calcite-option>
                   </calcite-select>
                 </calcite-card>
@@ -211,7 +212,7 @@
                   </calcite-label>
                   
                   <calcite-label>
-                    <calcite-button icon-start="annotate-tool" width="full" scale="l">update inspection settings</calcite-button>
+                    <calcite-button icon-start="annotate-tool" width="full" scale="l" id="updateInspection">update inspection settings</calcite-button>
                   </calcite-label>
                 
                 </calcite-card>

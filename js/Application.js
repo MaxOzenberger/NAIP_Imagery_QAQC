@@ -223,13 +223,19 @@ class Application extends AppBase {
           this.initializeImageInspectionView({view, naipImageryLayer});
           this.initializeFootprintsLayer({view, naipImageryLayer});
           this.initializeNAIPLayer({view, naipImageryLayer});
-          this.initializeImageDetails({view, naipImageryLayer});
+          const inspectionLayer = view.map.layers.find(layer => layer.title === "Imagery Feature Review - NAIP Raster Master Review");
+          let rasterName = this.rasterName;
+          inspectionLayer.load().then(() => {
+            inspectionLayer.set({outFields: ['*']});
+            this.initializeImageDetails({view, inspectionLayer, rasterName});
+          });
 
           this.addEventListener('image-selected', ({}) => {
             resolve();
           }, {once: true});
 
         }).catch(reject);
+        
       }).catch(reject);
     });
   }
@@ -670,9 +676,9 @@ class Application extends AppBase {
   /**
    *
    * @param view
-   * @param naipImageryLayer
+   * @param inspectionLayer
    */
-  initializeImageDetails({view, naipImageryLayer}) {
+  initializeImageDetails({view, inspectionLayer, rasterName}) {
     require([
       'esri/core/reactiveUtils',
       'esri/widgets/Feature',
@@ -690,10 +696,13 @@ class Application extends AppBase {
       const popupTemplate = popupUtils.createPopupTemplate({
         title: 'NAIP Image',
         displayField: "QQNAME",
-        fields: naipImageryLayer.fields
+        fields: inspectionLayer.fields
       }, {});
 
+      console.log(rasterName);
+
       this.addEventListener('image-selected', ({detail: {feature}}) => {
+        console.log(feature.attributes);
         details.set({graphic: feature});
 
         properties.set({
@@ -706,7 +715,33 @@ class Application extends AppBase {
         });
 
       });
+      const updateInspectionButton = document.getElementById('updateInspection');
+      updateInspectionButton.addEventListener('click', () => {
+        const formData = new FormData(document.getElementById('inspectionForm'));
+        const inspectionData = {};
+        formData.forEach((value, key) => {
+          inspectionData[key] = value;
+        });
+        console.log('Inspection Data:', inspectionData);
+        const updateFeature = {
+          attributes: {
+            OBJECTID: feature.attributes.OBJECTID,
+            ...inspectionData
+          }
+        };
 
+        inspectionLayer.applyEdits({
+          updateFeatures: [updateFeature]
+        }).then((result) => {
+          if (result.updateFeatureResults.length > 0) {
+            console.log('Feature updated successfully');
+          } else {
+            console.error('Failed to update feature');
+          }
+        }).catch((error) => {
+          console.error('Error updating feature:', error);
+        });
+      });
     });
   }
 
